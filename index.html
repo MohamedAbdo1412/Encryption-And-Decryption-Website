@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cipher Laboratory — Classical Cryptography</title>
+<meta name="description" content="An interactive vintage laboratory that visualises the full encryption and decryption pipelines of the Caesar cipher and an Enigma-inspired three-rotor machine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to laboratory content</a>
+
+<header class="lab-header">
+  <div class="header-plate">
+    <p class="wordmark">THE CIPHER LABORATORY</p>
+    <p class="wordmark-sub">CLASSICAL CRYPTOGRAPHY · MECHANICAL COMPUTATION</p>
+  </div>
+  <nav class="lab-nav" aria-label="Primary">
+    <a href="#intro">Introduction</a>
+    <a href="#caesar">Caesar Cipher</a>
+    <a href="#rotor">Rotor Machine</a>
+    <span class="status-indicator" id="header-status" role="status" aria-live="polite">
+      <span class="status-lamp"></span>
+      <span class="status-text">Idle</span>
+    </span>
+  </nav>
+</header>
+
+<main id="main">
+
+  <section id="intro" class="intro" aria-labelledby="intro-title">
+    <div class="intro-inner">
+      <p class="eyebrow">BUREAU OF MECHANICAL CRYPTOGRAPHY · EST. 1938</p>
+      <h1 id="intro-title" class="intro-headline">Every Message<br>Leaves a <em>Trace.</em></h1>
+      <p class="intro-body">
+        Explore the mechanisms that transform readable language into concealed information, from
+        the arithmetic simplicity of Caesar&rsquo;s cipher to the evolving electrical pathways of rotor machines.
+      </p>
+      <div class="intro-actions">
+        <a class="btn btn-primary" href="#caesar">Explore Caesar Cipher</a>
+        <a class="btn btn-secondary" href="#rotor">Enter the Rotor Laboratory</a>
+      </div>
+      <p class="intro-note">
+        Every control in this laboratory is operational. Change a setting, press a key,
+        and the traced computation below will change with it — character by character.
+      </p>
+    </div>
+  </section>
+
+  <section id="caesar" class="workbench caesar-lab" aria-labelledby="caesar-title">
+    <header class="section-header">
+      <p class="eyebrow">WORKBENCH No. I</p>
+      <h2 id="caesar-title">Caesar Cipher</h2>
+      <p class="section-sub">The Arithmetic of Substitution</p>
+      <p class="formula"><span class="formula-var">C</span> = (<span class="formula-var">P</span> + <span class="formula-var">K</span>) mod 26</p>
+    </header>
+
+    <div class="caesar-grid">
+      <div class="panel controls-panel" aria-label="Caesar controls">
+        <h3 class="panel-title">Input</h3>
+        <div class="field">
+          <label for="caesar-input">Message</label>
+          <textarea id="caesar-input" rows="3" spellcheck="false" autocomplete="off" placeholder="Type a message, e.g. ATTACK AT DAWN"></textarea>
+        </div>
+        <div class="field">
+          <div class="field-row">
+            <label for="caesar-shift">Shift (K)</label>
+            <input id="caesar-shift" class="num-input" type="number" min="0" max="25" step="1" value="3">
+          </div>
+          <input id="caesar-shift-slider" class="slider" type="range" min="0" max="25" step="1" value="3" aria-label="Shift amount slider">
+        </div>
+        <div class="field">
+          <label for="caesar-mode">Operation</label>
+          <select id="caesar-mode">
+            <option value="encrypt">Encrypt</option>
+            <option value="decrypt">Decrypt</option>
+          </select>
+        </div>
+        <div class="btn-group">
+          <button id="caesar-process" class="btn btn-primary" type="button">Process Message</button>
+          <button id="caesar-copy" class="btn btn-ghost" type="button">Copy Result</button>
+          <button id="caesar-swap" class="btn btn-ghost" type="button">Swap In&#8594;Out</button>
+          <button id="caesar-reset" class="btn btn-ghost" type="button">Reset</button>
+        </div>
+        <p class="field-help">Only A&ndash;Z letters are transformed. Spaces, digits and punctuation are preserved untouched.</p>
+      </div>
+
+      <div class="panel stage-panel" aria-label="Caesar pipeline">
+        <h3 class="panel-title">Alphabet Dial</h3>
+        <div class="dial-holder">
+          <svg id="caesar-dial" class="caesar-dial" viewBox="-130 -130 260 260" role="img" aria-label="Two concentric alphabet rings showing the shift substitution">
+            <defs>
+              <radialGradient id="dial-bg" cx="50%" cy="42%" r="65%">
+                <stop offset="0%" stop-color="#3a3526"/>
+                <stop offset="78%" stop-color="#2a2722"/>
+                <stop offset="100%" stop-color="#1d1c18"/>
+              </radialGradient>
+            </defs>
+            <g id="dial-rim-outer"></g>
+            <g id="dial-ring-upper"></g>
+            <g id="dial-ring-lower"></g>
+            <g id="dial-detail"></g>
+            <g id="dial-center"></g>
+          </svg>
+        </div>
+        <ol id="caesar-pipeline" class="pipeline" aria-label="Caesar pipeline stages"></ol>
+        <div class="output-readout">
+          <span class="readout-label" id="caesar-readout-label">CIPHERTEXT</span>
+          <span id="caesar-readout" class="readout">&#8212;</span>
+        </div>
+      </div>
+
+      <div class="panel trace-panel" aria-label="Caesar character trace">
+        <div class="trace-header">
+          <h3 class="panel-title">Character Trace</h3>
+          <div class="playback-controls" role="group" aria-label="Trace playback controls">
+            <button id="caesar-prev" class="pb-btn" type="button" aria-label="Previous character">&lsaquo;</button>
+            <button id="caesar-play" class="pb-btn pb-main" type="button" aria-label="Play trace">&#9654;</button>
+            <button id="caesar-next" class="pb-btn" type="button" aria-label="Next character">&rsaquo;</button>
+            <button id="caesar-skip" class="pb-btn" type="button" aria-label="Skip to end">&#9654;&#9654;</button>
+            <button id="caesar-replay" class="pb-btn" type="button" aria-label="Replay trace">&olarr;</button>
+            <select id="caesar-speed" class="speed-select" aria-label="Playback speed">
+              <option value="slow">Slow</option>
+              <option value="normal" selected>Normal</option>
+              <option value="fast">Fast</option>
+              <option value="instant">Instant</option>
+            </select>
+          </div>
+        </div>
+        <label class="limit-toggle" hidden><input id="caesar-limit" type="checkbox">Limit visual playback to 40 characters <span class="limit-badge">long messages</span></label>
+        <div id="caesar-trace" class="trace-table" role="table" aria-label="Per character transformation"></div>
+        <p id="caesar-trace-hint" class="trace-hint" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="rotor" class="workbench rotor-lab" aria-labelledby="rotor-title">
+    <header class="section-header">
+      <p class="eyebrow">WORKBENCH No. II</p>
+      <h2 id="rotor-title">Rotor Machine</h2>
+      <p class="section-sub">An Enigma-Inspired Three-Rotor Model</p>
+      <p class="run-note">ENIGMA-INSPIRED THREE-ROTOR MODEL — not a claim of full historical Enigma compatibility.</p>
+    </header>
+
+    <div class="rotor-ribbon">
+      <div class="panel field-panel">
+        <h3 class="panel-title">Configuration</h3>
+        <div class="rotor-slots">
+          <div class="slot">
+            <span class="slot-label">LEFT</span>
+            <select id="rotor-left" aria-label="Left rotor selection"></select>
+            <select id="rotor-left-pos" aria-label="Left rotor position"></select>
+          </div>
+          <div class="slot">
+            <span class="slot-label">MIDDLE</span>
+            <select id="rotor-mid" aria-label="Middle rotor selection"></select>
+            <select id="rotor-mid-pos" aria-label="Middle rotor position"></select>
+          </div>
+          <div class="slot">
+            <span class="slot-label">RIGHT</span>
+            <select id="rotor-right" aria-label="Right rotor selection"></select>
+            <select id="rotor-right-pos" aria-label="Right rotor position"></select>
+          </div>
+          <div class="slot">
+            <span class="slot-label">REFLECTOR</span>
+            <select id="rotor-reflector" aria-label="Reflector selection"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rotor-plugboard">Plugboard pairs <span class="opt-tag">optional</span></label>
+          <input id="rotor-plugboard" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. AB CD EF" aria-describedby="rotor-plugboard-help">
+          <p id="rotor-plugboard-help" class="field-help">Swap letters in pairs, e.g. <code>AB CD</code> exchanges A&#8596;B and C&#8596;D. Blank for no plugboard.</p>
+        </div>
+        <div class="field">
+          <label for="rotor-mode">Encryption / Decryption</label>
+          <select id="rotor-mode">
+            <option value="encrypt">Encrypt</option>
+            <option value="decrypt">Decrypt</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rotor-input">Message</label>
+          <textarea id="rotor-input" rows="3" spellcheck="false" autocomplete="off" placeholder="Type a message, then press Process Message"></textarea>
+        </div>
+        <div class="btn-group">
+          <button id="rotor-process" class="btn btn-primary" type="button">Process Message</button>
+          <button id="rotor-apply" class="btn btn-ghost" type="button">Apply Settings</button>
+          <button id="rotor-reset" class="btn btn-ghost" type="button">Reset to Defaults</button>
+        </div>
+        <p id="rotor-stale" class="stale-note" hidden>Settings changed since last process — results are now out of date.</p>
+      </div>
+
+      <div class="panel settings-panel">
+        <h3 class="panel-title">Machine Settings Summary</h3>
+        <dl id="rotor-settings-summary" class="settings-summary">
+          <div><dt>Rotors</dt><dd id="sum-rotors">I II III</dd></div>
+          <div><dt>Positions</dt><dd id="sum-pos">A A A</dd></div>
+          <div><dt>Reflector</dt><dd id="sum-reflector">B</dd></div>
+          <div><dt>Plugboard</dt><dd id="sum-plugboard">&#8212;</dd></div>
+        </dl>
+        <h3 class="panel-title">Signal Pipeline</h3>
+        <ol id="rotor-pipeline" class="pipeline" aria-label="Rotor signal pipeline"></ol>
+        <div class="output-readout">
+          <span class="readout-label" id="rotor-readout-label">OUTPUT</span>
+          <span id="rotor-readout" class="readout">&#8212;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="machine-holder panel">
+      <div class="machine-titleplate">
+        <span>R.O.T.O.R. &mdash; MARK III</span>
+        <span class="machine-serial">SERIAL No. 38-004-B</span>
+      </div>
+      <svg id="rotor-machine" class="rotor-machine" viewBox="0 0 1480 560" role="img" aria-label="Animated diagram of a three-rotor cipher machine showing the active electrical signal path through the entry, rotors and reflector">
+      </svg>
+      <div class="machine-caption">
+        The visible ring letter on each wheel is that rotor&rsquo;s current position. The sketched wire
+        shows the electrical route taken by the signal for the highlighted character.
+      </div>
+    </div>
+
+    <div class="rotor-lower-grid">
+      <div class="panel trace-panel" aria-label="Rotor character inspection">
+        <div class="trace-header">
+          <h3 class="panel-title">Signal Inspection</h3>
+          <div class="playback-controls" role="group" aria-label="Trace playback controls">
+            <button id="rotor-prev" class="pb-btn" type="button" aria-label="Previous character">&lsaquo;</button>
+            <button id="rotor-play" class="pb-btn pb-main" type="button" aria-label="Play trace">&#9654;</button>
+            <button id="rotor-next" class="pb-btn" type="button" aria-label="Next character">&rsaquo;</button>
+            <button id="rotor-skip" class="pb-btn" type="button" aria-label="Skip to end">&#9654;&#9654;</button>
+            <button id="rotor-replay" class="pb-btn" type="button" aria-label="Replay trace">&olarr;</button>
+            <select id="rotor-speed" class="speed-select" aria-label="Playback speed">
+              <option value="slow">Slow</option>
+              <option value="normal" selected>Normal</option>
+              <option value="fast">Fast</option>
+              <option value="instant">Instant</option>
+            </select>
+          </div>
+        </div>
+        <label class="limit-toggle" hidden><input id="rotor-limit" type="checkbox">Limit visual playback to 40 characters <span class="limit-badge">long messages</span></label>
+        <div id="rotor-trace" class="inspection-table" role="table" aria-label="Signal path inspection per character"></div>
+        <p id="rotor-trace-hint" class="trace-hint" hidden></p>
+      </div>
+
+      <div class="panel wiring-panel">
+        <h3 class="panel-title">Technical Inspection</h3>
+        <p class="field-help">
+          Select a rotor to view its full wiring permutation and its automatically generated inverse mapping.
+          Input letters run down the left column; the rotor&rsquo;s output letter is shown for the forward pass,
+          and the inverse for the return pass.
+        </p>
+        <div class="wiring-toolbar">
+          <select id="wiring-select" aria-label="Rotor to inspect"></select>
+          <button id="wiring-toggle" class="btn btn-ghost btn-small" type="button" aria-expanded="false">Show Wiring</button>
+        </div>
+        <div id="wiring-table" class="wiring-table" hidden></div>
+        <p class="field-help" id="wiring-validation"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lab-footer">
+  <div class="footer-inner">
+    <div>
+      <p class="footer-wordmark">THE CIPHER LABORATORY</p>
+      <p class="footer-sub">Instrument self-test: <span id="selftest-status" class="selftest-status">running&hellip;</span></p>
+    </div>
+    <div class="footer-security">
+      <p><strong>Security notice.</strong> The Caesar cipher and rotor machines presented here are historical
+      educational exhibits. They offer no modern cryptographic security and must never be used to protect
+      sensitive data.</p>
+      <label class="motion-toggle"><input id="motion-toggle" type="checkbox">Reduced motion (quiet mode)</label>
+    </div>
+  </div>
+</footer>
+
+<div id="sr-live" class="sr-only" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
